@@ -1,0 +1,23 @@
+FROM ubuntu:16.04
+MAINTAINER Viktor Hansson "viktor.hansson@dataductus.se"
+
+# Install the Saltstack 2016.11 minion
+RUN apt-get update && \
+	apt-get install -y curl && \
+	curl https://repo.saltstack.com/apt/ubuntu/16.04/amd64/2016.11/SALTSTACK-GPG-KEY.pub | apt-key add - && \
+	echo "deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/2016.11 xenial main" > /etc/apt/sources.list.d/saltstack.list && \
+	apt-get update && \
+	apt-get install -y salt-master salt-minion && \
+	apt-get clean
+
+# Add salt config files
+ADD etc/master /etc/salt/master
+ADD etc/minion /etc/salt/minion
+
+# Exposing salt master ports
+EXPOSE 4505 4506
+
+# Add and set start script
+ADD start.sh /start.sh
+CMD ["bash", "start.sh"]
+
