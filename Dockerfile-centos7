@@ -1,15 +1,34 @@
 FROM centos:7
 MAINTAINER Viktor Hansson "viktor.hansson@dataductus.se"
+ENV container docker
+
+STOPSIGNAL 37
+
+#Remove systemd files that will mess stuff up inside docker
+RUN (cd /lib/systemd/system/sysinit.target.wants/; \
+	for i in *; do \
+		[ $i == systemd-tmpfiles-setup.service ] || rm -f $i; \
+	done); \
+	rm -f /lib/systemd/system/multi-user.target.wants/*;\
+	rm -f /etc/systemd/system/*.wants/*;\
+	rm -f /lib/systemd/system/local-fs.target.wants/*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+	rm -f /lib/systemd/system/basic.target.wants/*;\
+	rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+# Required for systemd to work at all
+VOLUME [ "/sys/fs/cgroup" ]
 
 # Install the Saltstack 2016.11 minion
-RUN yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2016.11-2.el7.noarch.rpm && \
+RUN yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2016.11-2.el7.noarch.rpm epel-release && \
 	yum clean expire-cache && \
-	yum install -y salt-master salt-minion && \
-	yum clean all
-
+	yum install -y salt-master salt-minion python-pip sudo git && \
+	yum clean all && \
+	pip install gitpython
 # Add salt config files
-ADD etc/master /etc/salt/master
-ADD etc/minion /etc/salt/minion
+ADD etc/master /etc/salt/master_template
+ADD etc/minion /etc/salt/minion_template
 
 # Exposing salt master ports
 EXPOSE 4505 4506
@@ -17,4 +36,3 @@ EXPOSE 4505 4506
 # Add and set start script
 ADD start.sh /start.sh
 CMD ["bash", "start.sh"]
-
