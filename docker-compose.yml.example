@@ -1,0 +1,77 @@
+version: '2'
+
+services:
+
+#  # Ubuntu 16.04 master
+#  master:
+#    image: artefacts.dataductus.se/saltstack-ubuntu16.04
+#    environment:
+#      SALT_USE: master
+#      LOG_LEVEL: debug
+#      MASTER_LOG_LEVEL: debug
+#    hostname: master
+#    privileged: true
+#    expose:
+#      - "4505"
+#      - "4506"
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#    tmpfs:
+#      - /run
+#      - /tmp
+######################################################
+#  # Centos 7 master
+#  master:
+#    image: artefacts.dataductus.se/saltstack-centos7
+#    environment:
+#      SALT_USE: master
+#      LOG_LEVEL: debug
+#      MASTER_LOG_LEVEL: info
+#    hostname: master
+#    privileged: true
+#    expose:
+#      - "4505"
+#      - "4506"
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#    tmpfs:
+#      - /run
+#      - /tmp
+######################################################
+#  # CentOS 6 master
+#  master:
+#    image: artefacts.dataductus.se/saltstack-centos6
+#    environment:
+#      SALT_USE: master
+#      LOG_LEVEL: info
+#      MASTER_LOG_LEVEL: info
+#    hostname: master
+#    privileged: true
+#    expose:
+#      - "4505"
+#      - "4506"
+######################################################
+#  centos7-minion:
+#    image: artefacts.dataductus.se/saltstack-centos7
+#    environment:
+#      SALT_USE: minion
+#      LOG_LEVEL: debug
+#    hostname: centos7-minion
+#    depends_on:
+#      - master
+#    # These three are always required for systemd to work
+#    privileged: true
+#    volumes:
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#    tmpfs:
+#      - /run
+######################################################
+#  centos6-minion:
+#    image: artefacts.dataductus.se/saltstack-centos6
+#    environment:
+#      SALT_USE: minion
+#      LOG_LEVEL: debug
+#    hostname: centos6-minion
+#    depends_on:
+#      - master
+######################################################

@@ -19,13 +19,22 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; \
 
 # Required for systemd to work at all
 VOLUME [ "/sys/fs/cgroup" ]
+# Required to run docker inside docker, since AUFS inside AUFS is not possible
+VOLUME [ "/var/lib/docker" ]
 
 # Install the Saltstack 2016.11 minion
 RUN yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2016.11-2.el7.noarch.rpm epel-release && \
 	yum clean expire-cache && \
-	yum install -y salt-master salt-minion python-pip sudo git && \
+	yum install -y salt-master salt-minion salt-api python-pip sudo git && \
 	yum clean all && \
 	pip install gitpython
+
+# Install docker
+RUN yum install -y yum-utils device-mapper-persistent-data lvm2 && \
+	yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && \
+	yum makecache fast && \
+	yum install docker-ce -y
+
 # Add salt config files
 ADD etc/master /etc/salt/master_template
 ADD etc/minion /etc/salt/minion_template

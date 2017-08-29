@@ -1,5 +1,7 @@
-FROM ubuntu:16.04
+FROM solita/ubuntu-systemd
 MAINTAINER Viktor Hansson "viktor.hansson@dataductus.se"
+
+STOPSIGNAL 37
 
 # Install the Saltstack 2016.11 minion
 RUN apt-get update && \
@@ -7,12 +9,25 @@ RUN apt-get update && \
 	curl https://repo.saltstack.com/apt/ubuntu/16.04/amd64/2016.11/SALTSTACK-GPG-KEY.pub | apt-key add - && \
 	echo "deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/2016.11 xenial main" > /etc/apt/sources.list.d/saltstack.list && \
 	apt-get update && \
-	apt-get install -y salt-master salt-minion && \
-	apt-get clean
+	apt-get install -y salt-master salt-minion python-pip sudo git && \
+	apt-get clean && \
+	pip install gitpython
+
+RUN apt-get update && \
+	apt-get install apt-transport-https ca-certificates software-properties-common -y && \
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+	add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+	apt-get update && \
+	apt-get install docker-ce -y
+
+# Required for systemd to work at all
+VOLUME [ "/sys/fs/cgroup" ]
+# Required to run docker inside docker, since AUFS inside AUFS is not possible
+VOLUME [ "/var/lib/docker" ]
 
 # Add salt config files
-ADD etc/master /etc/salt/master
-ADD etc/minion /etc/salt/minion
+ADD etc/master /etc/salt/master_template
+ADD etc/minion /etc/salt/minion_template
 
 # Exposing salt master ports
 EXPOSE 4505 4506

@@ -13,9 +13,12 @@ RUN sed --in-place '/HOSTNAME/d' /etc/sysconfig/network && \
 RUN yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2016.11-2.el6.noarch.rpm curl && \
 	yum install epel-release -y && \
 	yum clean expire-cache && \
-	yum install -y salt-master salt-minion python-pip sudo git && \
+	yum install -y salt-master salt-minion salt-api python-pip sudo git && \
 	yum clean all && \
 	pip install 'GitPython<2.0.9'
+
+# Required to run docker inside docker, since AUFS inside AUFS is not possible
+VOLUME [ "/var/lib/docker" ]
 
 # Add salt config files
 ADD etc/master /etc/salt/master_template
